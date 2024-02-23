@@ -10,9 +10,9 @@ interface Theme {
 
 export const theme: Theme = {
   color: {
-    primaryColor: "#EBD8FF",
+    primaryColor: "#000000",
     secondaryColor: "#373737",
-    bg: "#a1a1a1",
+    bg: "#ffffff",
     bgBtn: "#EBD8FF",
     accentColor: "#5CD3A8",
   },
