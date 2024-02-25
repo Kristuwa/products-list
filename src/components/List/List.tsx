@@ -1,14 +1,19 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import md5 from "md5";
-import { Accent, Item, List, Text } from "./List.styled";
+import { List } from "./List.styled";
+import { formatDate } from "../../helpers";
+import { ItemProduct } from "../ItemProduct/ItemProduct";
+import { Pagination } from "../Pagination/Pagination";
 
-interface Product {
+export interface Product {
   id: string;
   product: string;
   price: number;
   brand: string;
 }
+
+const currentDate = formatDate();
 
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,7 +33,7 @@ export const ProductsPage: React.FC = () => {
           {
             headers: {
               "Content-Type": "application/json",
-              "X-Auth": md5("Valantis_20240223"),
+              "X-Auth": md5(`Valantis_${currentDate}`),
             },
           }
         );
@@ -45,7 +50,7 @@ export const ProductsPage: React.FC = () => {
             {
               headers: {
                 "Content-Type": "application/json",
-                "X-Auth": md5("Valantis_20240223"),
+                "X-Auth": md5(`Valantis_${currentDate}`),
               },
             }
           );
@@ -62,63 +67,48 @@ export const ProductsPage: React.FC = () => {
     getProducts();
   }, []);
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
   const itemsPerPage = 50;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = currentPage * itemsPerPage;
 
   //уберем товары с повторяющимися id
-  const uniqueProducts = products.reduce((acc: Product[], product: Product) => {
-    const productIndex = acc.findIndex((item) => item.id === product.id);
+  const uniqueProducts: Product[] = products.reduce(
+    (acc: Product[], product: Product) => {
+      const productIndex: number = acc.findIndex(
+        (item) => item.id === product.id
+      );
 
-    if (productIndex === -1) {
-      acc.push(product);
-    }
-    return acc;
-  }, []);
+      if (productIndex === -1) {
+        acc.push(product);
+      }
+      return acc;
+    },
+    []
+  );
 
-  const currentProducts = uniqueProducts.slice(startIndex, endIndex);
+  const currentProducts: Product[] = uniqueProducts.slice(startIndex, endIndex);
 
   return (
     <div>
       <List>
-        {currentProducts.map(({product, id, brand, price}) => (
-          <Item key={id}>
-            <Text>
-              <Accent>Продукт:</Accent> {product}
-            </Text>
-            <Text>
-              <Accent>Id:</Accent> {id}
-            </Text>
-            <Text>
-              <Accent>Цена:</Accent> {price}
-            </Text>
-            <Text>
-              <Accent>Бренд:</Accent> {brand ?? "бренд отсутсвует"}
-            </Text>
-          </Item>
+        {currentProducts.map(({ product, id, brand, price }) => (
+          <ItemProduct
+            key={id}
+            id={id}
+            product={product}
+            brand={brand}
+            price={price}
+          />
         ))}
       </List>
       <div>
-        {products.length > itemsPerPage && (
-          <div>
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            <span>{currentPage}</span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={endIndex >= products.length}
-            >
-              Next
-            </button>
-          </div>
+        {uniqueProducts.length > itemsPerPage && (
+          <Pagination
+            products={uniqueProducts}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            endIndex={endIndex}
+          />
         )}
       </div>
     </div>

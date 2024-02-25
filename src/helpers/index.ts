@@ -1,0 +1,14 @@
+export const formatDate:()=> string = () => {
+// Получаем текущую дату
+const currentDate = new Date();
+
+// Извлекаем год, месяц и день
+const year = currentDate.getFullYear();
+const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); 
+const day = currentDate.getDate().toString().padStart(2, '0');
+
+// Формируем строку в нужном формате
+const formattedDate = year + month + day;
+
+return formattedDate;
+}
