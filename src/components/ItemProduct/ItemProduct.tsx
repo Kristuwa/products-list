@@ -1,6 +1,6 @@
 import { FC } from "react";
-import { Product } from "../List/List";
 import { Accent, Item, Text } from "./ItemProduct.styled";
+import { Product } from "../../App";
 
 
 export const ItemProduct :FC<Product> = ({id,product,price,brand}) => {

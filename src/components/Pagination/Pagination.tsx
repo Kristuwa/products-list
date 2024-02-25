@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction, useCallback } from "react";
 import { Button, ButtonsList, Page, PagesList } from "./Pagination.styled";
-import { Product } from "../List/List";
+import { Product } from "../../App";
 
 interface Props {
   products: Product[];
@@ -15,7 +15,7 @@ export const Pagination: FC<Props> = ({
   currentPage,
   endIndex,
 }) => {
-  const totalPage: number = Math.floor(products.length / 50);
+  const totalPage: number = Math.ceil(products.length / 50);
 
   const listOfPage: () => number[] = () => {
     let arr = [];
@@ -43,7 +43,7 @@ export const Pagination: FC<Props> = ({
   return (
     <ButtonsList>
       <Button onClick={handlePageChangePrev} disabled={currentPage === 1}>
-        Previous
+       Предыдущая
       </Button>
       <PagesList>
         {listOfPage().map((item: number) => (
@@ -60,7 +60,7 @@ export const Pagination: FC<Props> = ({
         onClick={handlePageChangeNext}
         disabled={endIndex >= products.length}
       >
-        Next
+        Следующая
       </Button>
     </ButtonsList>
   );

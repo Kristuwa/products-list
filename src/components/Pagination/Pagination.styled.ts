@@ -27,7 +27,7 @@ align-items:center;
 export const Button = styled.button`
 background-color:#a1a1a1;
 padding:5px;
-width: 100px;
+width: 150px;
 border-radius: 5px;
 display:flex;
 justify-content:center;
