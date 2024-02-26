@@ -1,5 +1,4 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { Product } from "../../App";
 import { Button } from "../Pagination/Pagination.styled";
 import { FormContainer, Input, TextForm } from "./Filter.styled";
 import { Formik, FormikHelpers } from "formik";
@@ -8,8 +7,10 @@ import axios from "axios";
 import md5 from "md5";
 
 interface Props {
-  uniqueProducts: Product[];
-  setProducts: Dispatch<SetStateAction<Product[]>>;
+  setIds: Dispatch<SetStateAction<string[]>>;
+  setLoading:Dispatch<SetStateAction<boolean>>;
+  setTotalPages: Dispatch<SetStateAction<number>>;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
 }
 
 interface Values {
@@ -20,11 +21,12 @@ interface Values {
 
 const currentDate = formatDate();
 
-export const Filter: FC<Props> = ({ uniqueProducts, setProducts }) => {
+export const Filter: FC<Props> = ({ setIds, setLoading,setTotalPages, setCurrentPage }) => {
   const handleFilter = async (
     values: Values,
     { resetForm }: FormikHelpers<Values>
   ) => {
+	setLoading(true);
     try {
       //получим ids необходимого количества товара
       const nameValue = Object.keys(values);
@@ -48,30 +50,15 @@ export const Filter: FC<Props> = ({ uniqueProducts, setProducts }) => {
       );
 
       const { data } = resultsIds;
-      console.log(data);
-      for (let i = 0; i < data.result.length; i += 100) {
-        const productsList = await axios.post(
-          "http://api.valantis.store:40000/",
-          {
-            action: "get_items",
-            params: { ids: data.result.slice(i, i + 100) },
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-Auth": md5(`Valantis_${currentDate}`),
-            },
-          }
-        );
-        const dataProducts = productsList.data.result;
-        if (i === 0) {
-          setProducts(dataProducts);
-        } else {
-          setProducts((prevState) => [...prevState, ...dataProducts]);
-        }
-      }
+
+		setIds(data.result);
+		const totalPage: number = Math.ceil(data.result.length / 50);
+		setCurrentPage(1);
+		setTotalPages(totalPage);
+		setLoading(false);
     } catch (error) {
       console.error("Ошибка при выполнении запроса:", error);
+		setLoading(false);
     }
 
     resetForm();

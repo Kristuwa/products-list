@@ -10,6 +10,7 @@ import md5 from "md5";
 import { Pagination } from "./components/Pagination/Pagination";
 import { ListProducts } from "./components/List/ListProducts";
 import { Filter } from "./components/Filter/Filter";
+import { Loader } from "./components/Loader/Loader";
 
 export interface Product {
   id: string;
@@ -21,20 +22,23 @@ export interface Product {
 const currentDate = formatDate();
 
 const App: FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [ids, setIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [uniqueProducts, setUniqueProducts] = useState<Product[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     //функция для получения данных с запроса
     const getProducts = async () => {
+      setLoading(true);
       try {
         //получим ids необходимого количества товара
         const resultsIds = await axios.post(
           "http://api.valantis.store:40000/",
           {
             action: "get_ids",
-            params: { offset: 0, limit: 200 },
+            params: { offset: 0 },
           },
           {
             headers: {
@@ -45,56 +49,69 @@ const App: FC = () => {
         );
 
         const { data } = resultsIds;
-        //получим товары для 1х 100 ids
-        for (let i = 1; i <= 2; i += 1) {
-          const productsList = await axios.post(
-            "http://api.valantis.store:40000/",
-            {
-              action: "get_items",
-              params: { ids: data.result.slice(i - 1, 100 * i) },
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                "X-Auth": md5(`Valantis_${currentDate}`),
-              },
-            }
-          );
+        setIds(data.result);
+        const totalPage: number = Math.ceil(data.result.length / 50);
 
-          const dataProducts = productsList.data.result;
-
-          //запишим их в состояние
-          setProducts((prevState) => [...prevState, ...dataProducts]);
-        }
+        setTotalPages(totalPage);
+        setLoading(false);
       } catch (error) {
         console.error("Ошибка при выполнении запроса:", error);
+        setLoading(false);
       }
     };
-    getProducts();
-  }, []);
+    if (ids.length === 0) {
+      getProducts();
+    }
+  }, [ids]);
 
-  const itemsPerPage = 50;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = currentPage * itemsPerPage;
   useEffect(() => {
-    //уберем товары с повторяющимися id
-    const uniqueProds: Product[] = products.reduce(
-      (acc: Product[], product: Product) => {
-        const productIndex: number = acc.findIndex(
-          (item) => item.id === product.id
+    const getProductsPerPage = async () => {
+      setLoading(true);
+
+      try {
+        const currentIds = ids.slice(50 * (currentPage - 1), 50 * currentPage);
+        const productsList = await axios.post(
+          "http://api.valantis.store:40000/",
+          {
+            action: "get_items",
+            params: { ids: currentIds },
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-Auth": md5(`Valantis_${currentDate}`),
+            },
+          }
         );
 
-        if (productIndex === -1) {
-          acc.push(product);
-        }
-        return acc;
-      },
-      []
-    );
-	 setUniqueProducts(uniqueProds);
-  }, [products]);
+        const dataProducts = productsList.data.result;
 
-  const currentProducts: Product[] = uniqueProducts.slice(startIndex, endIndex);
+        const uniqueProds: Product[] = dataProducts.reduce(
+          (acc: Product[], product: Product) => {
+            const productIndex: number = acc.findIndex(
+              (item) => item.id === product.id
+            );
+
+            if (productIndex === -1) {
+              acc.push(product);
+            }
+            return acc;
+          },
+          []
+        );
+        setUniqueProducts(uniqueProds);
+        setLoading(false);
+      } catch (error) {
+        console.error("Ошибка при выполнении запроса на 1 страницу:", error);
+        setLoading(false);
+		  getProductsPerPage();
+      }
+    };
+if(ids.length > 0) {
+	getProductsPerPage();
+}
+    
+  }, [currentPage, ids]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -102,19 +119,25 @@ const App: FC = () => {
       <main className="main-container">
         <Title>Список товаров</Title>
         <div>
-          <Filter uniqueProducts={uniqueProducts} setProducts={setProducts} />
+          <Filter
+            setIds={setIds}
+            setLoading={setLoading}
+            setTotalPages={setTotalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
-        <ListProducts products={currentProducts} />
-        <div>
-          {uniqueProducts.length > itemsPerPage && (
+        {ids.length > 0 && !loading && (
+          <>
+            <ListProducts products={uniqueProducts} />
             <Pagination
-              products={uniqueProducts}
               setCurrentPage={setCurrentPage}
               currentPage={currentPage}
-              endIndex={endIndex}
+              totalPages={totalPages}
             />
-          )}
-        </div>
+          </>
+        )}
+        {loading && <Loader />}
+        <div></div>
       </main>
     </ThemeProvider>
   );

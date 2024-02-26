@@ -1,25 +1,21 @@
 import { Dispatch, FC, SetStateAction, useCallback } from "react";
 import { Button, ButtonsList, Page, PagesList } from "./Pagination.styled";
-import { Product } from "../../App";
 
 interface Props {
-  products: Product[];
   setCurrentPage: Dispatch<SetStateAction<number>>;
   currentPage: number;
-  endIndex: number;
+  totalPages: number;
 }
 
 export const Pagination: FC<Props> = ({
-  products,
   setCurrentPage,
   currentPage,
-  endIndex,
+  totalPages
 }) => {
-  const totalPage: number = Math.ceil(products.length / 50);
-
+  
   const listOfPage: () => number[] = () => {
     let arr = [];
-    for (let i = 1; i <= totalPage; i += 1) {
+    for (let i = 1; i <= totalPages; i += 1) {
       arr.push(i);
     }
     return arr;
@@ -58,7 +54,7 @@ export const Pagination: FC<Props> = ({
       </PagesList>
       <Button
         onClick={handlePageChangeNext}
-        disabled={endIndex >= products.length}
+        disabled={currentPage === totalPages}
       >
         Следующая
       </Button>
