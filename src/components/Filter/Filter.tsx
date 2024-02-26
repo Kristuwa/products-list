@@ -8,7 +8,7 @@ import md5 from "md5";
 
 interface Props {
   setIds: Dispatch<SetStateAction<string[]>>;
-  setLoading:Dispatch<SetStateAction<boolean>>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
   setTotalPages: Dispatch<SetStateAction<number>>;
   setCurrentPage: Dispatch<SetStateAction<number>>;
 }
@@ -21,12 +21,17 @@ interface Values {
 
 const currentDate = formatDate();
 
-export const Filter: FC<Props> = ({ setIds, setLoading,setTotalPages, setCurrentPage }) => {
+export const Filter: FC<Props> = ({
+  setIds,
+  setLoading,
+  setTotalPages,
+  setCurrentPage,
+}) => {
   const handleFilter = async (
     values: Values,
     { resetForm }: FormikHelpers<Values>
   ) => {
-	setLoading(true);
+    setLoading(true);
     try {
       //получим ids необходимого количества товара
       const nameValue = Object.keys(values);
@@ -45,20 +50,21 @@ export const Filter: FC<Props> = ({ setIds, setLoading,setTotalPages, setCurrent
           headers: {
             "Content-Type": "application/json",
             "X-Auth": md5(`Valantis_${currentDate}`),
+            "Access-Control-Allow-Origin": "*",
           },
         }
       );
 
       const { data } = resultsIds;
 
-		setIds(data.result);
-		const totalPage: number = Math.ceil(data.result.length / 50);
-		setCurrentPage(1);
-		setTotalPages(totalPage);
-		setLoading(false);
+      setIds(data.result);
+      const totalPage: number = Math.ceil(data.result.length / 50);
+      setCurrentPage(1);
+      setTotalPages(totalPage);
+      setLoading(false);
     } catch (error) {
       console.error("Ошибка при выполнении запроса:", error);
-		setLoading(false);
+      setLoading(false);
     }
 
     resetForm();

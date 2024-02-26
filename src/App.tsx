@@ -44,6 +44,7 @@ const App: FC = () => {
             headers: {
               "Content-Type": "application/json",
               "X-Auth": md5(`Valantis_${currentDate}`),
+              "Access-Control-Allow-Origin": "*",
             },
           }
         );
@@ -80,6 +81,7 @@ const App: FC = () => {
             headers: {
               "Content-Type": "application/json",
               "X-Auth": md5(`Valantis_${currentDate}`),
+              "Access-Control-Allow-Origin": "*",
             },
           }
         );
@@ -104,13 +106,12 @@ const App: FC = () => {
       } catch (error) {
         console.error("Ошибка при выполнении запроса на 1 страницу:", error);
         setLoading(false);
-		  getProductsPerPage();
+        getProductsPerPage();
       }
     };
-if(ids.length > 0) {
-	getProductsPerPage();
-}
-    
+    if (ids.length > 0) {
+      getProductsPerPage();
+    }
   }, [currentPage, ids]);
 
   return (
