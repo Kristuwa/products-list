@@ -51,6 +51,7 @@ export const Filter: FC<Props> = ({
             "Content-Type": "application/json",
             "X-Auth": md5(`Valantis_${currentDate}`),
             "Access-Control-Allow-Origin": "*",
+				"Referrer-Policy": "unsafe-url"
           },
         }
       );

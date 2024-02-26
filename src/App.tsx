@@ -45,6 +45,7 @@ const App: FC = () => {
               "Content-Type": "application/json",
               "X-Auth": md5(`Valantis_${currentDate}`),
               "Access-Control-Allow-Origin": "*",
+				  "Referrer-Policy": "unsafe-url"
             },
           }
         );
@@ -82,6 +83,7 @@ const App: FC = () => {
               "Content-Type": "application/json",
               "X-Auth": md5(`Valantis_${currentDate}`),
               "Access-Control-Allow-Origin": "*",
+				  "Referrer-Policy": "unsafe-url"
             },
           }
         );
