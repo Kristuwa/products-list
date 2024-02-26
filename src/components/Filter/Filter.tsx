@@ -33,7 +33,7 @@ export const Filter: FC<Props> = ({ setIds, setLoading,setTotalPages, setCurrent
       const valueParam = Object.values(values);
 
       const resultsIds = await axios.post(
-        "//api.valantis.store:40000/",
+        "http://api.valantis.store:40000/",
         {
           action: "filter",
           params: {

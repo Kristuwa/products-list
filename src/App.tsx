@@ -35,7 +35,7 @@ const App: FC = () => {
       try {
         //получим ids необходимого количества товара
         const resultsIds = await axios.post(
-          "//api.valantis.store:40000/",
+          "http://api.valantis.store:40000/",
           {
             action: "get_ids",
             params: { offset: 0 },
@@ -71,7 +71,7 @@ const App: FC = () => {
       try {
         const currentIds = ids.slice(50 * (currentPage - 1), 50 * currentPage);
         const productsList = await axios.post(
-          "//api.valantis.store:40000/",
+          "http://api.valantis.store:40000/",
           {
             action: "get_items",
             params: { ids: currentIds },
